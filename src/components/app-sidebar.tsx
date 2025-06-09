@@ -37,6 +37,42 @@ export function AppSidebar({ user }: SidebarProps) {
     <Sidebar>
       <SidebarHeader>
         <h1 className="text-2xl font-bold">p12o.chat</h1>
+
+        <SidebarMenu>
+          {user ?(
+            <SidebarMenuItem>
+              <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton>
+                    <CircleUser />
+                    <span className="truncate min-w-0">
+                      {user.email}
+                    </span>
+                    {isDropdownOpen ? <ChevronUp className="ml-auto flex-shrink-0" /> : <ChevronDown className="ml-auto flex-shrink-0" />}
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-[var(--radix-popper-anchor-width)]">
+                  <DropdownMenuItem>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Account</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={onSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sign Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          ) : (
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={() => setIsAuthDialogOpen(true)}>
+                <LogIn />
+                <span>Sign In</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+
+        </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent>
@@ -61,7 +97,7 @@ export function AppSidebar({ user }: SidebarProps) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      {/* <SidebarFooter>
         <SidebarMenu>
           {user ?(
             <SidebarMenuItem>
@@ -80,7 +116,7 @@ export function AppSidebar({ user }: SidebarProps) {
                     <User className="mr-2 h-4 w-4" />
                     <span>Account</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onSignOut}>
+                  <DropdownMenuItem onSelect={onSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Sign Out</span>
                   </DropdownMenuItem>
@@ -97,7 +133,7 @@ export function AppSidebar({ user }: SidebarProps) {
           )}
 
         </SidebarMenu>
-      </SidebarFooter>
+      </SidebarFooter> */}
 
       <AuthDialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen} />
     </Sidebar>
