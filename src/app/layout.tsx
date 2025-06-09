@@ -6,6 +6,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { SidebarTrigger } from "@/components/sidebar/siderbar-trigger";
+import { ReactQueryProvider } from "@/providers/react-query-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,15 +41,17 @@ export default async function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <SidebarProvider>
-            <AppSidebar user={user} />
-            <main className="flex-1 relative">
+          <ReactQueryProvider>
+            <SidebarProvider>
+              <AppSidebar user={user} />
+              <main className="flex-1 relative">
 
-              <SidebarTrigger />
+                <SidebarTrigger />
 
-              {children}
-            </main>
-          </SidebarProvider>
+                {children}
+              </main>
+            </SidebarProvider>
+          </ReactQueryProvider>
         </ThemeProvider>
       </body>
     </html>

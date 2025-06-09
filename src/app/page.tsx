@@ -1,4 +1,5 @@
 import { ChatInput } from "@/components/chat/chat-input";
+import { MainContent } from "@/components/app/main-content";
 
 export default async function Home() {
 
@@ -18,6 +19,8 @@ export default async function Home() {
             </p>
           ))}
         </div>
+
+        <MainContent />
         
       </div>
 
