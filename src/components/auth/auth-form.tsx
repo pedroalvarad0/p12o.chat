@@ -86,6 +86,19 @@ export function AuthForm() {
                     <Mail className="absolute right-3 top-2 h-5 w-5 text-muted-foreground" />
                   </div>
                 </div>
+
+                {message && (
+                  <div className="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 text-sm p-3 rounded-md flex items-start">
+                    <div className="shrink-0 mr-2 mt-0.5">✨</div>
+                    <p>{message}</p>
+                  </div>
+                )}
+                {error && (
+                  <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md flex items-start">
+                    <div className="shrink-0 mr-2 mt-0.5">⚠️</div>
+                    <p>{error}</p>
+                  </div>
+                )}
               </CardContent>
               <CardFooter>
                 <Button
