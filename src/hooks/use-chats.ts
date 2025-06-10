@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { getChats } from "@/lib/actions/chats";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { createChat, getChats } from "@/lib/actions/chats";
 import { Chat } from "@/lib/types";
 
 interface UseChatsOptions {
@@ -12,4 +12,14 @@ export function useChats(options: UseChatsOptions = {}) {
     queryFn: getChats,
     enabled: options.enabled ?? true, 
   });
+}
+
+export function useCreateChat() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createChat,
+    onSuccess: (newChat) => {
+      queryClient.setQueryData(['chats'], (old: Chat[]) => [newChat, ...old]);
+    }
+  })
 }

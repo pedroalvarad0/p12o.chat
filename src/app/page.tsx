@@ -26,7 +26,7 @@ export default async function Home() {
 
       <div className="sticky bottom-0 w-full">
         <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8">
-          <ChatInput />
+          <ChatInput location="home" />
         </div>
       </div>
     </div> 

@@ -73,7 +73,10 @@ export function AppSidebar() {
             </SidebarMenuItem>
           )}
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton
+              asChild
+              className={cn(selectedChatId === null && "bg-accent text-accent-foreground")}
+            >
               <Link href="/">
                 <SquarePlus />
                 <span>New chat</span>

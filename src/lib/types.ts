@@ -4,3 +4,12 @@ export interface Chat {
     name: string;
     updated_at: string;
 }
+
+export interface Message {
+    id: string;
+    chat_id: string;
+    role: string;
+    content: string;
+    created_at: string;
+    metadata: Record<string, any>;
+}

@@ -4,20 +4,32 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Loader2 } from "lucide-react";
 import { useChatInputStore } from "@/lib/stores/chat-input-store";
 import { createChat } from "@/lib/actions/chats";
+import { createMessage } from "@/lib/actions/messages";
 import { toast } from "sonner";
 import { useUser } from "@/hooks/use-user";
+import { useCreateChat } from "@/hooks/use-chats";
+import { useCreateMessage } from "@/hooks/use-messages";
+import { useRouter } from "next/navigation";
 
 const MAX_CHARS = 1000;
 const MIN_HEIGHT = 80;
 const MAX_HEIGHT = 180;
 
-export function ChatInput() {
+interface ChatInputProps {
+  location: string;
+}
+
+export function ChatInput({ location }: ChatInputProps) {
   const { data: user } = useUser();
   const { model, input, setModel, setInput } = useChatInputStore();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { mutateAsync: createChatMutation } = useCreateChat();
+  const { mutateAsync: createMessageMutation } = useCreateMessage();
+  const [isSending, setIsSending] = useState(false);
+  const router = useRouter();
 
   const adjustHeight = () => {
     const textarea = textareaRef.current;
@@ -45,18 +57,35 @@ export function ChatInput() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSending(true);
     if (input.trim()) {
       if (!user) {
         toast.warning("You must be logged in to create a chat");
+        setIsSending(false);
         return;
       }
 
-      const chat = await createChat();
-
-      // Aquí puedes agregar la lógica para enviar el mensaje
-      console.log("Enviando mensaje:", input);
-      setInput("");
+      try {
+        // Create a new chat and get the result
+        if (location === "home") {
+          const newChat = await createChatMutation();
+          await createMessage(newChat.id, input.trim(), "user");
+          router.push(`/chat/${newChat.id}`);
+        } else {
+          await createMessageMutation({
+            chatId: location,
+            content: input.trim(),
+            role: "user"
+          });
+        }
+        
+        setInput("");
+      } catch (error) {
+        console.error("Error creating chat or message:", error);
+        toast.error("Failed to send message");
+      }
     }
+    setIsSending(false);
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -98,8 +127,12 @@ export function ChatInput() {
             </SelectContent>
           </Select>
 
-          <Button type="submit" variant="default" className="w-[40px] h-[40px]" disabled={!input.trim()}>
-            <ArrowUp className="size-4" />
+          <Button type="submit" variant="default" className="w-[40px] h-[40px]" disabled={!input.trim() || isSending}>
+            {isSending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <ArrowUp className="size-4" />
+            )}
           </Button>
         </div>
       </form>
