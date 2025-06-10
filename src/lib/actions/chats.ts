@@ -66,3 +66,22 @@ export async function renameChat(chatId: string, name: string) {
     throw new Error(dbError.message);
   }
 }
+
+export async function deleteChat(chatId: string) {
+  const supabase = await createClient();
+
+  const { error: authError } = await supabase.auth.getUser()
+
+  if (authError) {
+    throw new Error(authError.message);
+  }
+  
+  const { error: dbError } = await supabase
+    .from('chats')
+    .delete()
+    .eq('id', chatId);
+
+  if (dbError) {
+    throw new Error(dbError.message);
+  }
+}

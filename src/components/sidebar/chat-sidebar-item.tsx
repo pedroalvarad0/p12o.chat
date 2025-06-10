@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { Trash2, Edit2 } from "lucide-react";
 import { useState } from "react";
 import { RenameChat } from "../chat/rename-chat";
+import { DeleteChat } from "../chat/delete-chat";
 
 interface ChatSidebarItemProps {
   chat: Chat;
@@ -16,18 +17,29 @@ export function ChatSidebarItem({ chat }: ChatSidebarItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const { selectedChatId, selectChat } = useChatStore();
   const [isRenaming, setIsRenaming] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
+  
+  const openRenameChat = (open: boolean, hover: boolean) => {
+    setIsRenaming(open);
+    setIsHovered(hover);
+  };
+  
+  const openDeleteChat = (open: boolean, hover: boolean) => {
+    setIsDeleting(open);
+    setIsHovered(hover);
+  };
+  
   const handleEdit = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsRenaming(true);
+    openRenameChat(true, true);
   };
-
+  
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // TODO: Implementar lógica para borrar el chat
-    console.log("Borrar chat:", chat.id);
+    openDeleteChat(true, true);
   };
 
   return (
@@ -70,7 +82,8 @@ export function ChatSidebarItem({ chat }: ChatSidebarItemProps) {
         </Button>
       </div>
 
-      <RenameChat chatId={chat.id} chatName={chat.name} open={isRenaming} onOpenChange={setIsRenaming} />
+      <RenameChat chatId={chat.id} chatName={chat.name} open={isRenaming} onOpenChange={openRenameChat} />
+      <DeleteChat chatId={chat.id} open={isDeleting} onOpenChange={openDeleteChat} />
 
     </SidebarMenuItem>
   )

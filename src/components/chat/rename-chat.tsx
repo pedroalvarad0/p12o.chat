@@ -13,7 +13,7 @@ interface RenameChatProps {
   chatId: string;
   chatName: string;
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: (open: boolean, hover: boolean) => void;
 }
 
 export function RenameChat({ chatId, chatName, open, onOpenChange }: RenameChatProps) {
@@ -31,7 +31,7 @@ export function RenameChat({ chatId, chatName, open, onOpenChange }: RenameChatP
       queryClient.setQueryData(['chats'], (old: Chat[]) => old.map(chat => chat.id === chatId ? { ...chat, name } : chat));
 
       toast.success("Chat renamed successfully");
-      onOpenChange(false);
+      onOpenChange(false, false);
     } catch (error) {
       toast.error("Failed to rename chat");
     } finally {
@@ -40,7 +40,7 @@ export function RenameChat({ chatId, chatName, open, onOpenChange }: RenameChatP
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(open) => onOpenChange(open, false)}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Rename chat</DialogTitle>
@@ -58,7 +58,7 @@ export function RenameChat({ chatId, chatName, open, onOpenChange }: RenameChatP
             />
           </div>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false, false)}>Cancel</Button>
             <Button type="submit" disabled={!name.trim() || isSaving}>
               {isSaving && <Loader2 className="animate-spin" />}
               {!isSaving ? "Save" : "Saving..."}
