@@ -7,6 +7,7 @@ import { ArrowRight, Check, Loader2, Mail } from "lucide-react";
 import { InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
 import { InputOTP } from "../ui/input-otp";
 import { handleSignIn, handleVerifyOTP } from "@/lib/actions/auth";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface AuthDialogProps {
   open: boolean
@@ -21,6 +22,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [showOtpInput, setShowOtpInput] = useState(false);
+  const queryClient = useQueryClient();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -50,6 +52,9 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       await handleVerifyOTP(email, otp);
       setMessage("Email verified!");
       setShowOtpInput(false);
+
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+
       onOpenChange(false);
     } catch (error) {
       setError("Invalid code. Please try again.")

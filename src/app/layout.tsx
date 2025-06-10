@@ -3,10 +3,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { getCurrentUser } from "@/lib/actions/auth";
+import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SidebarTrigger } from "@/components/sidebar/siderbar-trigger";
 import { ReactQueryProvider } from "@/providers/react-query-provider";
+import { Toaster } from "@/components/ui/sonner"
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +29,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getCurrentUser();
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -43,12 +43,14 @@ export default async function RootLayout({
         >
           <ReactQueryProvider>
             <SidebarProvider>
-              <AppSidebar user={user} />
+              <AppSidebar />
               <main className="flex-1 relative">
 
                 <SidebarTrigger />
 
                 {children}
+
+                <Toaster />
               </main>
             </SidebarProvider>
           </ReactQueryProvider>

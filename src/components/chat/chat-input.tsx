@@ -7,12 +7,15 @@ import { Button } from "../ui/button";
 import { ArrowUp } from "lucide-react";
 import { useChatInputStore } from "@/lib/stores/chat-input-store";
 import { createChat } from "@/lib/actions/chats";
+import { toast } from "sonner";
+import { useUser } from "@/hooks/use-user";
 
 const MAX_CHARS = 1000;
 const MIN_HEIGHT = 80;
 const MAX_HEIGHT = 180;
 
 export function ChatInput() {
+  const { data: user } = useUser();
   const { model, input, setModel, setInput } = useChatInputStore();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -43,6 +46,10 @@ export function ChatInput() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim()) {
+      if (!user) {
+        toast.warning("You must be logged in to create a chat");
+        return;
+      }
 
       const chat = await createChat();
 

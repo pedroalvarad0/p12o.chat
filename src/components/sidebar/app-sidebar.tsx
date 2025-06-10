@@ -4,25 +4,22 @@ import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, S
 import { ChevronUp, ChevronDown, CircleUser, LogOut, User, LogIn, Loader2, AlertCircle, SquarePlus } from "lucide-react";
 import { handleSignOut } from "@/lib/actions/auth";
 import { useState } from "react";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../ui/dropdown-menu";
 import Link from "next/link";
-import { AuthDialog } from "./auth/auth-dialog";
+import { AuthDialog } from "../auth/auth-dialog";
 import { useChats } from "@/hooks/use-chats";
 import { useChatStore } from "@/lib/stores/chat-store"; 
 import { cn } from "@/lib/utils";
+import { useUser } from "@/hooks/use-user";
 
-interface SidebarProps {
-  user: {
-    email?: string;
-    id: string;
-  } | null
-}
-
-export function AppSidebar({ user }: SidebarProps) {
+export function AppSidebar() {
+  const { data: user } = useUser();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
-  const { data: chats, isLoading: isLoadingChats, error: chatsError } = useChats();
+  const { data: chats, isLoading: isLoadingChats, error: chatsError } = useChats({ 
+    enabled: !!user // Solo cargar chats si hay usuario
+  });
   const { selectedChatId, selectChat } = useChatStore();
 
   async function onSignOut() {
@@ -95,51 +92,59 @@ export function AppSidebar({ user }: SidebarProps) {
           </SidebarGroupLabel>
 
           <SidebarGroupContent>
-            {
-              isLoadingChats && (
-                <div className="flex items-center justify-center px-2 text-muted-foreground">
-                  <Loader2 className="animate-spin mr-2" />
-                  <span className="text-sm">Loading chats...</span>
-                </div>
-              )
-            }
-            {
-              chatsError && !isLoadingChats && (
-                <div className="flex items-center justify-center px-2 text-destructive">
-                  <AlertCircle className="mr-2 h-4 w-4" />
-                  <span className="text-sm">Error loading chats.</span>
-                </div>
-              )
-            }
-            {
-              !isLoadingChats && !chatsError && chats && chats.length === 0 && (
-                <div className="flex items-center justify-center px-2 text-muted-foreground">
-                  <span className="text-sm">No chats found.</span>
-                </div>
-              )
-            }
-            {
-              !isLoadingChats && !chatsError   && chats && chats.length > 0 && (
-                <SidebarMenu>
-                  {chats.map((chat) => (
-                    <SidebarMenuItem key={chat.id}>
-                      <SidebarMenuButton
-                        asChild
-                        className={cn(
-                          chat.id === selectedChatId && "bg-accent text-accent-foreground"
-                        )}
-                      >
-                        <Link href={`/chat/${chat.id}`} className="flex items-center space-x-2" onClick={() => selectChat(chat.id)}>
-                          <span className="truncate min-w-0">
-                            {chat.name}
-                          </span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              )
-            }
+            {!user ? (
+              <div className="flex items-center justify-center px-2 text-muted-foreground">
+                <span className="text-sm">Sign in to view your chats.</span>
+              </div>
+            ) : (
+              <>
+                {
+                  isLoadingChats && (
+                    <div className="flex items-center justify-center px-2 text-muted-foreground">
+                      <Loader2 className="animate-spin mr-2" />
+                      <span className="text-sm">Loading chats...</span>
+                    </div>
+                  )
+                }
+                {
+                  chatsError && !isLoadingChats && (
+                    <div className="flex items-center justify-center px-2 text-destructive">
+                      <AlertCircle className="mr-2 h-4 w-4" />
+                      <span className="text-sm">Error loading chats.</span>
+                    </div>
+                  )
+                }
+                {
+                  !isLoadingChats && !chatsError && chats && chats.length === 0 && (
+                    <div className="flex items-center justify-center px-2 text-muted-foreground">
+                      <span className="text-sm">No chats found.</span>
+                    </div>
+                  )
+                }
+                {
+                  !isLoadingChats && !chatsError && chats && chats.length > 0 && (
+                    <SidebarMenu>
+                      {chats.map((chat) => (
+                        <SidebarMenuItem key={chat.id}>
+                          <SidebarMenuButton
+                            asChild
+                            className={cn(
+                              chat.id === selectedChatId && "bg-accent text-accent-foreground"
+                            )}
+                          >
+                            <Link href={`/chat/${chat.id}`} className="flex items-center space-x-2" onClick={() => selectChat(chat.id)}>
+                              <span className="truncate min-w-0">
+                                {chat.name}
+                              </span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  )
+                }
+              </>
+            )}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
