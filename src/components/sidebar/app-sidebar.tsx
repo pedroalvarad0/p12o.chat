@@ -11,6 +11,7 @@ import { useChats } from "@/hooks/use-chats";
 import { useChatStore } from "@/lib/stores/chat-store"; 
 import { cn } from "@/lib/utils";
 import { useUser } from "@/hooks/use-user";
+import { ChatSidebarItem } from "./chat-sidebar-item";
 
 export function AppSidebar() {
   const { data: user } = useUser();
@@ -128,20 +129,7 @@ export function AppSidebar() {
                   !isLoadingChats && !chatsError && chats && chats.length > 0 && (
                     <SidebarMenu>
                       {chats.map((chat) => (
-                        <SidebarMenuItem key={chat.id}>
-                          <SidebarMenuButton
-                            asChild
-                            className={cn(
-                              chat.id === selectedChatId && "bg-accent text-accent-foreground"
-                            )}
-                          >
-                            <Link href={`/chat/${chat.id}`} className="flex items-center space-x-2" onClick={() => selectChat(chat.id)}>
-                              <span className="truncate min-w-0">
-                                {chat.name}
-                              </span>
-                            </Link>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
+                        <ChatSidebarItem key={chat.id} chat={chat} />
                       ))}
                     </SidebarMenu>
                   )
