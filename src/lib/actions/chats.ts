@@ -45,3 +45,24 @@ export async function createChat(): Promise<Chat> {
 
   return chat;
 }
+
+export async function renameChat(chatId: string, name: string) {
+  const supabase = await createClient();
+
+  const { error: authError } = await supabase.auth.getUser()
+
+  if (authError) {
+    throw new Error(authError.message);
+  }
+
+  const { error: dbError } = await supabase
+    .from('chats')
+    .update({ name })
+    .eq('id', chatId)
+    .select()
+    .single();
+
+  if (dbError) {
+    throw new Error(dbError.message);
+  }
+}

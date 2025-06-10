@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { Trash2, Edit2 } from "lucide-react";
 import { useState } from "react";
+import { RenameChat } from "../chat/rename-chat";
 
 interface ChatSidebarItemProps {
   chat: Chat;
@@ -14,12 +15,12 @@ interface ChatSidebarItemProps {
 export function ChatSidebarItem({ chat }: ChatSidebarItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const { selectedChatId, selectChat } = useChatStore();
+  const [isRenaming, setIsRenaming] = useState(false);
 
   const handleEdit = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // TODO: Implementar lógica para editar el nombre
-    console.log("Editar chat:", chat.id);
+    setIsRenaming(true);
   };
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -68,6 +69,8 @@ export function ChatSidebarItem({ chat }: ChatSidebarItemProps) {
           <Trash2 className="h-3 w-3 text-red-500" />
         </Button>
       </div>
+
+      <RenameChat chatId={chat.id} chatName={chat.name} open={isRenaming} onOpenChange={setIsRenaming} />
 
     </SidebarMenuItem>
   )
