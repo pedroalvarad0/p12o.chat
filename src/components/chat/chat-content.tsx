@@ -7,29 +7,46 @@ import { useUser } from "@/hooks/use-user";
 import { redirect } from "next/navigation";
 import { useMessages } from "@/hooks/use-messages";
 import { ChatInput } from "./chat-input";
+import { Loader2 } from "lucide-react";
 
 export function ChatContent() {
-  const { data: user } = useUser();
+  const { data: user, isLoading: userLoading, isError: userError } = useUser();
   const { chat_id } = useParams();
-  const { data: chats, isLoading, error } = useChats({ 
+  const { data: chats, isLoading: chatsLoading, error: chatsError } = useChats({ 
     enabled: !!user
   });
   const { selectedChatId, selectChat } = useChatStore();
   const chat = chats?.find((chat) => chat.id === chat_id);
   const { data: messages, isLoading: messagesLoading, error: messagesError } = useMessages(chat_id as string);
 
-  if (!user || !chat) {
-    redirect('/');
-  }
-
   useEffect(() => {
-    if (!isLoading && !error && chats && chats.length > 0) {
+    if (!chatsLoading && !chatsError && chats && chats.length > 0) {
         const chatExists = chats.some((chat) => chat.id === chat_id);
         if (chatExists) {
             selectChat(chat_id as string);
         } 
     }
-  }, [chat_id, chats, isLoading, error, selectChat]);
+  }, [chat_id, chats, chatsLoading, chatsError, selectChat]);
+
+  if (userLoading || chatsLoading) {
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center">
+        <Loader2 className="animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (userError || chatsError || messagesError) {
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center">
+        <div className="text-muted-foreground">Error loading chat</div>
+      </div>
+    );
+  }
+
+  if (!chat || !user) {
+    redirect('/');
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
