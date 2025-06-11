@@ -8,7 +8,8 @@ export async function getMessages(chatId: string): Promise<Message[]> {
   const { data, error } = await supabase
     .from('messages')
     .select('*')
-    .eq('chat_id', chatId);
+    .eq('chat_id', chatId)
+    .order('created_at', { ascending: true });
 
   if (error) {
     throw new Error(error.message);

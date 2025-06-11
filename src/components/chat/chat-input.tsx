@@ -6,13 +6,16 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
 import { ArrowUp, Loader2 } from "lucide-react";
 import { useChatInputStore } from "@/lib/stores/chat-input-store";
-import { createChat } from "@/lib/actions/chats";
 import { createMessage } from "@/lib/actions/messages";
 import { toast } from "sonner";
 import { useUser } from "@/hooks/use-user";
 import { useCreateChat } from "@/hooks/use-chats";
-import { useCreateMessage } from "@/hooks/use-messages";
 import { useRouter } from "next/navigation";
+import { useGenerateAIResponse } from "@/hooks/use-openai";
+import { generateAIResponse } from "@/lib/actions/openai";
+import { useCreateMessage } from "@/hooks/use-messages";
+import { useQueryClient } from "@tanstack/react-query";
+import { Message } from "@/lib/types";
 
 const MAX_CHARS = 1000;
 const MIN_HEIGHT = 80;
@@ -28,8 +31,12 @@ export function ChatInput({ location }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { mutateAsync: createChatMutation } = useCreateChat();
   const { mutateAsync: createMessageMutation } = useCreateMessage();
+  const { mutateAsync: generateAIResponseMutation } = useGenerateAIResponse();
   const [isSending, setIsSending] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+
 
   const adjustHeight = () => {
     const textarea = textareaRef.current;
@@ -72,14 +79,26 @@ export function ChatInput({ location }: ChatInputProps) {
           await createMessage(newChat.id, input.trim(), "user");
           router.push(`/chat/${newChat.id}`);
         } else {
+
           await createMessageMutation({
             chatId: location,
             content: input.trim(),
             role: "user"
           });
+
+          setInput("");
+
+          const context = queryClient.getQueryData<Message[]>(['messages', location]) || [];
+
+          await generateAIResponseMutation({
+            chatId: location,
+            context,
+            model
+          });
+
         }
         
-        setInput("");
+        
       } catch (error) {
         console.error("Error creating chat or message:", error);
         toast.error("Failed to send message");
