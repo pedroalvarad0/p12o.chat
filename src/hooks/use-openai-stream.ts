@@ -1,10 +1,12 @@
 import { useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Message } from '@/lib/types';
+import { useStreamingStore } from '@/lib/stores/streaming-store';
 
 export function useStreamingAIResponse() {
   const [isStreaming, setIsStreaming] = useState(false);
   const queryClient = useQueryClient();
+  const { setStreaming, clearStreaming } = useStreamingStore();
 
   const generateStreamingResponse = useCallback(async ({
     chatId,
@@ -16,6 +18,7 @@ export function useStreamingAIResponse() {
     model: string;
   }) => {
     setIsStreaming(true);
+    setStreaming(chatId); // Update global streaming state
     
     try {
       const response = await fetch('/api/ai-stream', {
@@ -100,8 +103,9 @@ export function useStreamingAIResponse() {
       throw error;
     } finally {
       setIsStreaming(false);
+      clearStreaming(); // Clear global streaming state
     }
-  }, [queryClient]);
+      }, [queryClient, setStreaming, clearStreaming]);
 
   return {
     generateStreamingResponse,
