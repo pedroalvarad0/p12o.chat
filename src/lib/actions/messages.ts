@@ -37,3 +37,20 @@ export async function createMessage(chatId: string, content: string, role: strin
 
   return data;
 }
+
+export async function updateMessage(messageId: string, content: string): Promise<Message> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('messages')
+    .update({ content })
+    .eq('id', messageId)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}

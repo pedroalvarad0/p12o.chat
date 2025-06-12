@@ -16,6 +16,7 @@ import { generateAIResponse } from "@/lib/actions/openai";
 import { useCreateMessage } from "@/hooks/use-messages";
 import { useQueryClient } from "@tanstack/react-query";
 import { Message } from "@/lib/types";
+import { useStreamingAIResponse } from "@/hooks/use-openai-stream";
 
 const MAX_CHARS = 1000;
 const MIN_HEIGHT = 80;
@@ -32,6 +33,7 @@ export function ChatInput({ location }: ChatInputProps) {
   const { mutateAsync: createChatMutation } = useCreateChat();
   const { mutateAsync: createMessageMutation } = useCreateMessage();
   const { mutateAsync: generateAIResponseMutation } = useGenerateAIResponse();
+  const { generateStreamingResponse, isStreaming } = useStreamingAIResponse();
   const [isSending, setIsSending] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -90,7 +92,8 @@ export function ChatInput({ location }: ChatInputProps) {
 
           const context = queryClient.getQueryData<Message[]>(['messages', location]) || [];
 
-          await generateAIResponseMutation({
+          // Use streaming instead of regular response
+          await generateStreamingResponse({
             chatId: location,
             context,
             model
@@ -146,8 +149,8 @@ export function ChatInput({ location }: ChatInputProps) {
             </SelectContent>
           </Select>
 
-          <Button type="submit" variant="default" className="w-[40px] h-[40px]" disabled={!input.trim() || isSending}>
-            {isSending ? (
+          <Button type="submit" variant="default" className="w-[40px] h-[40px]" disabled={!input.trim() || isSending || isStreaming}>
+            {(isSending || isStreaming) ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
               <ArrowUp className="size-4" />
