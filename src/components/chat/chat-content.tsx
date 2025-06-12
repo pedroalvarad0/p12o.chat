@@ -7,6 +7,7 @@ import { useUser } from "@/hooks/use-user";
 import { redirect } from "next/navigation";
 import { useMessages } from "@/hooks/use-messages";
 import { ChatInput } from "./chat-input";
+import { ChatMessage } from "./chat-message";
 import { Loader2 } from "lucide-react";
 import { useStreamingStore } from "@/lib/stores/streaming-store";
 
@@ -94,30 +95,24 @@ export function ChatContent() {
         ref={messagesContainerRef}
         className="flex-1 w-full max-w-4xl mx-auto px-3 mt-8 sm:px-6 md:px-8 py-4 overflow-y-auto"
       >
-        <div className="flex flex-col gap-4">
-          {messages?.map((message) => (
-            <div key={message.id} className="flex flex-col gap-2">
-              <div className={`p-3 rounded-lg max-w-[80%] ${
-                message.role === 'user' 
-                  ? 'bg-primary text-primary-foreground ml-auto' 
-                  : 'bg-muted'
-              }`}>
-                <p className="whitespace-pre-wrap">{message.content}</p>
-              </div>
-            </div>
-          ))}
+        <div className="flex flex-col">
+          {messages?.map((message, index) => {
+            // Check if this is the last message and if it's currently being streamed
+            const isLastMessage = index === messages.length - 1;
+            const isStreamingThisMessage = isStreaming && 
+              streamingChatId === chat_id && 
+              message.role === 'assistant' && 
+              isLastMessage;
+              
+            return (
+              <ChatMessage 
+                key={message.id} 
+                message={message} 
+                isStreaming={isStreamingThisMessage}
+              />
+            );
+          })}
           
-          {/* Streaming indicator */}
-          {/* {isStreaming && streamingChatId === chat_id && (
-            <div className="flex flex-col gap-2">
-              <div className="bg-muted p-3 rounded-lg max-w-[80%]">
-                <div className="flex items-center gap-2">
-                  <Loader2 className="size-4 animate-spin" />
-                  <span className="text-muted-foreground">Generando respuesta...</span>
-                </div>
-              </div>
-            </div>
-          )} */}
           {/* Invisible element to scroll to */}
           <div ref={messagesEndRef} />
         </div>
