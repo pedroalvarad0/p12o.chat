@@ -22,51 +22,46 @@ export function ChatMessage({ message, isStreaming = false }: ChatMessageProps) 
   return (
     <div className={`flex justify-start mb-4`}>
       <div className={`
-        ${isUser ? 'max-w-[80%]' : ''} ${isUser ? 'p-3' : 'p-0'} rounded-lg relative group
-        ${isUser 
-          ? 'bg-muted' 
+        ${isUser ? 'max-w-[80%]' : ''} ${isUser ? 'p-2' : 'p-0'} rounded-lg relative group
+        ${isUser
+          ? 'bg-muted'
           : 'bg-background'
         }
         ${isStreaming ? 'animate-pulse' : ''}
       `}>
-        
+
         {/* Message content */}
         <div className="prose prose-sm max-w-none dark:prose-invert">
           <p className="whitespace-pre-wrap text-sm leading-relaxed mb-0">
-            {message.content || (isStreaming ? "Escribiendo..." : "")}
+            {message.content}
           </p>
         </div>
-        
+
         {/* Message actions and timestamp */}
-        <div className="flex items-center justify-between mt-2">
-          
-          {/* Copy button - only show for assistant messages */}
-          {!isUser && message.content && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleCopy}
-              className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-            >
-              {copied ? (
-                <Check className="h-3 w-3" />
-              ) : (
-                <Copy className="h-3 w-3" />
+        {
+          !isUser && (
+            <div className="flex items-center justify-between mt-2">
+
+              {/* Copy button - only show for assistant messages */}
+              {!isUser && message.content && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCopy}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                >
+                  {copied ? (
+                    <Check className="h-3 w-3" />
+                  ) : (
+                    <Copy className="h-3 w-3" />
+                  )}
+                </Button>
               )}
-            </Button>
-          )}
-        </div>
-        
-        {/* Streaming indicator */}
-        {isStreaming && (
-          <div className="absolute -bottom-1 -right-1">
-            <div className="flex space-x-1">
-              <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-              <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-              <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
             </div>
-          </div>
-        )}
+          )
+        }
+
+
       </div>
     </div>
   );

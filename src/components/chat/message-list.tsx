@@ -1,0 +1,52 @@
+"use client";
+
+import { useMessages } from "@/hooks/use-messages";
+import { ChatMessage } from "./chat-message";
+import { useStreamingStore } from "@/lib/stores/streaming-store";
+import { ChatContentSkeleton } from "./chat-content-skeleton";
+
+interface MessageListProps {
+  chatId: string;
+}
+
+export function MessageList({ chatId }: MessageListProps) {
+  const messages = useMessages(chatId);
+  const { isStreaming, streamingChatId } = useStreamingStore();
+
+  if (messages.isLoading) {
+    return <ChatContentSkeleton />;
+  }
+
+  if (messages.isError) {
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center">
+        <div className="text-muted-foreground">Error loading messages</div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="flex-1 w-full max-w-4xl mx-auto px-3 mt-8 sm:px-6 md:px-8 py-4 overflow-y-auto"
+    >
+      <div className="flex flex-col">
+        {messages.data?.map((message, index) => {
+          // Check if this is the last message and if it's currently being streamed
+          const isLastMessage = index === messages.data.length - 1;
+          const isStreamingThisMessage = isStreaming &&
+            streamingChatId === chatId &&
+            message.role === 'assistant' &&
+            isLastMessage;
+
+          return (
+            <ChatMessage
+              key={message.id}
+              message={message}
+              isStreaming={isStreamingThisMessage}
+            />
+          );
+        })}
+      </div>
+    </div>
+  )
+}

@@ -78,8 +78,18 @@ export function ChatInput({ location }: ChatInputProps) {
         // Create a new chat and get the result
         if (location === "home") {
           const newChat = await createChatMutation();
-          await createMessage(newChat.id, input.trim(), "user");
+          const newMessage = await createMessage(newChat.id, input.trim(), "user");
           router.push(`/chat/${newChat.id}`);
+
+          setInput("");
+
+          const context = [newMessage];
+
+          await generateStreamingResponse({
+            chatId: newChat.id,
+            context,
+            model
+          });
         } else {
 
           await createMessageMutation({
