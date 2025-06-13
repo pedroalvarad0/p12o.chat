@@ -1,26 +1,17 @@
 'use client'
 import { useParams } from "next/navigation";
-import { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import { useChats } from "@/hooks/use-chats";
 import { useChatStore } from "@/lib/stores/chat-store";
 import { useUser } from "@/hooks/use-user";
 import { redirect } from "next/navigation";
 import { ChatInput } from "./chat-input";
 import { MessageList } from "./message-list";
-import { Suspense } from "react";
 import { ChatContentSkeleton } from "./chat-content-skeleton";
 
 export function ChatContent() {
   const { chat_id } = useParams();
-
-  return (
-    <Suspense fallback={<ChatContentSkeleton />}>
-      <ChatContentClient chatId={chat_id as string} />
-    </Suspense>
-  );
-}
-
-function ChatContentClient({ chatId }: { chatId: string }) {
+  const chatId = chat_id as string;
   const user = useUser();
   const chats = useChats({ enabled: !!user.data });
   const chat = chats.data?.find((chat) => chat.id === chatId);
