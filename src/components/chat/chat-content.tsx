@@ -5,7 +5,6 @@ import { useChats } from "@/hooks/use-chats";
 import { useChatStore } from "@/lib/stores/chat-store";
 import { useUser } from "@/hooks/use-user";
 import { redirect } from "next/navigation";
-import { ChatInput } from "./chat-input";
 import { MessageList } from "./message-list";
 import { ChatContentSkeleton } from "./chat-content-skeleton";
 
@@ -43,13 +42,6 @@ export function ChatContent() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <MessageList chatId={chat.id} />
-      <div className="sticky bottom-0 w-full">
-        <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8">
-          <ChatInput location={chat.id} />
-        </div>
-      </div>
-    </div>
+    <MessageList chatId={chat.id} />
   );
 }

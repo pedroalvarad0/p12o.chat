@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SidebarTrigger } from "@/components/sidebar/siderbar-trigger";
 import { ReactQueryProvider } from "@/providers/react-query-provider";
 import { Toaster } from "@/components/ui/sonner"
+import { ChatInput } from "@/components/chat/chat-input";
 
 
 const geistSans = Geist({
@@ -48,7 +49,11 @@ export default async function RootLayout({
 
                 <SidebarTrigger />
 
-                {children}
+                <div className="flex flex-col min-h-screen">
+                  {children}
+
+                  <ChatInput location="home" />
+                </div>
 
                 <Toaster />
               </main>

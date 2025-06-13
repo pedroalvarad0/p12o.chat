@@ -17,6 +17,7 @@ import { useCreateMessage } from "@/hooks/use-messages";
 import { useQueryClient } from "@tanstack/react-query";
 import { Message } from "@/lib/types";
 import { useStreamingAIResponse } from "@/hooks/use-openai-stream";
+import { usePathname } from "next/navigation";
 
 const MAX_CHARS = 1000;
 const MIN_HEIGHT = 80;
@@ -38,15 +39,18 @@ export function ChatInput({ location }: ChatInputProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
+  const pathname = usePathname();
+  const isHome = pathname === "/";
 
+  console.log("isHome = ", isHome);
 
   const adjustHeight = () => {
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = `${MIN_HEIGHT}px`;
-      
+
       const scrollHeight = textarea.scrollHeight;
-      
+
       const newHeight = Math.min(Math.max(scrollHeight, MIN_HEIGHT), MAX_HEIGHT);
       textarea.style.height = `${newHeight}px`;
     }
@@ -110,8 +114,8 @@ export function ChatInput({ location }: ChatInputProps) {
           });
 
         }
-        
-        
+
+
       } catch (error) {
         console.error("Error creating chat or message:", error);
         toast.error("Failed to send message");
@@ -130,44 +134,46 @@ export function ChatInput({ location }: ChatInputProps) {
   }
 
   return (
-    <div className="w-full">
-      <form onSubmit={handleSubmit} className="relative flex flex-col rounded-t-lg border bg-background shadow-sm">
-        <div className="relative">
-          <Textarea
-            ref={textareaRef}
-            value={input}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask me anything."
-            className="resize-none rounded-b-none rounded-t-lg border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 overflow-y-auto"
-            maxLength={MAX_CHARS}
-            style={{ height: `${MIN_HEIGHT}px` }}
-          />
-          <span className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-1 rounded">
-            {input.length} / {MAX_CHARS} characters
-          </span>
-        </div>
+    <div className="sticky bottom-0 w-full">
+      <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8">
+        <form onSubmit={handleSubmit} className="relative flex flex-col rounded-t-lg border bg-background shadow-sm">
+          <div className="relative">
+            <Textarea
+              ref={textareaRef}
+              value={input}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask me anything."
+              className="resize-none rounded-b-none rounded-t-lg border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 overflow-y-auto"
+              maxLength={MAX_CHARS}
+              style={{ height: `${MIN_HEIGHT}px` }}
+            />
+            <span className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-1 rounded">
+              {input.length} / {MAX_CHARS} characters
+            </span>
+          </div>
 
-        <div className="flex items-center justify-between gap-2 p-2 border-t bg-muted/50">
-          <Select value={model} onValueChange={setModel}>
-            <SelectTrigger className="w-[200px] border-0 bg-transparent focus:ring-0">
-              <SelectValue placeholder="Select a model" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="gpt-4o">gpt-4o</SelectItem>
-              <SelectItem value="gpt-4o-mini">gpt-4o-mini</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center justify-between gap-2 p-2 border-t bg-muted/50">
+            <Select value={model} onValueChange={setModel}>
+              <SelectTrigger className="w-[200px] border-0 bg-transparent focus:ring-0">
+                <SelectValue placeholder="Select a model" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="gpt-4o">gpt-4o</SelectItem>
+                <SelectItem value="gpt-4o-mini">gpt-4o-mini</SelectItem>
+              </SelectContent>
+            </Select>
 
-          <Button type="submit" variant="default" className="w-[40px] h-[40px]" disabled={!input.trim() || isSending || isStreaming}>
-            {(isSending || isStreaming) ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <ArrowUp className="size-4" />
-            )}
-          </Button>
-        </div>
-      </form>
+            <Button type="submit" variant="default" className="w-[40px] h-[40px]" disabled={!input.trim() || isSending || isStreaming}>
+              {(isSending || isStreaming) ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <ArrowUp className="size-4" />
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }
