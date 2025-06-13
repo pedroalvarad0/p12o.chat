@@ -4,6 +4,7 @@ import { useMessages } from "@/hooks/use-messages";
 import { ChatMessage } from "./chat-message";
 import { useStreamingStore } from "@/lib/stores/streaming-store";
 import { ChatContentSkeleton } from "./chat-content-skeleton";
+import { useEffect, useRef } from "react";
 
 interface MessageListProps {
   chatId: string;
@@ -12,6 +13,14 @@ interface MessageListProps {
 export function MessageList({ chatId }: MessageListProps) {
   const messages = useMessages(chatId);
   const { isStreaming, streamingChatId } = useStreamingStore();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to bottom when messages are loaded
+  useEffect(() => {
+    if (!messages.isLoading && messages.data) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+    }
+  }, [messages.isLoading, messages.data]);
 
   if (messages.isLoading) {
     return <ChatContentSkeleton />;
@@ -46,6 +55,7 @@ export function MessageList({ chatId }: MessageListProps) {
             />
           );
         })}
+        <div ref={messagesEndRef} />
       </div>
     </div>
   )
