@@ -9,7 +9,6 @@ import { ReactQueryProvider } from "@/providers/react-query-provider";
 import { Toaster } from "@/components/ui/sonner"
 import { ChatInput } from "@/components/chat/chat-input";
 
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -45,15 +44,14 @@ export default async function RootLayout({
           <ReactQueryProvider>
             <SidebarProvider>
               <AppSidebar />
-              <main className="flex-1 relative">
+              <main className="flex-1 relative flex flex-col">
 
                 <SidebarTrigger />
 
-                <div className="flex flex-col min-h-screen">
-                  {children}
 
-                  <ChatInput location="home" />
-                </div>
+                {children}
+
+                <ChatInput />
 
                 <Toaster />
               </main>

@@ -7,14 +7,34 @@ import { useUser } from "@/hooks/use-user";
 import { redirect } from "next/navigation";
 import { MessageList } from "./message-list";
 import { ChatContentSkeleton } from "./chat-content-skeleton";
+import { useMessages } from "@/hooks/use-messages";
+import { useChatInputStore } from "@/lib/stores/chat-input-store";
+import { useStreamingAIResponse } from "@/hooks/use-openai-stream";
 
 export function ChatContent() {
   const { chat_id } = useParams();
   const chatId = chat_id as string;
+  const { model } = useChatInputStore();
   const user = useUser();
   const chats = useChats({ enabled: !!user.data });
+  const messages = useMessages(chatId);
   const chat = chats.data?.find((chat) => chat.id === chatId);
   const { selectChat } = useChatStore();
+  const { generateStreamingResponse } = useStreamingAIResponse();
+
+  useEffect(() => {
+    if (
+      messages.data && 
+      messages.data.length > 0 &&
+      messages.data[messages.data.length - 1].role === "user"
+    ) {
+      generateStreamingResponse({
+        chatId,
+        context: messages.data,
+        model,
+      })
+    }
+  }, [messages.data, generateStreamingResponse, chatId, model]);
 
   useEffect(() => {
     if (!chats.isLoading && !chats.isError && chats.data && chats.data.length > 0) {

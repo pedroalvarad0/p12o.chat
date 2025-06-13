@@ -34,6 +34,7 @@ export function DeleteChat({ chatId, open, onOpenChange }: DeleteChatProps) {
       
       onOpenChange(false, false);
       
+      
       if (pathname.includes(chatId)) {
         setTimeout(() => {
           router.replace('/');

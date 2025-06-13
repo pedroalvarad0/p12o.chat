@@ -11,7 +11,7 @@ export default async function Home() {
       </p>
 
       <div className="flex flex-col gap-2 mt-4">
-        {Array.from({ length: 20 }).map((_, index) => (
+        {Array.from({ length: 10 }).map((_, index) => (
           <p key={index} className="text-sm mt-2">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. In esse, incidunt error quo distinctio ipsa enim, obcaecati quas reprehenderit veritatis amet odit consequuntur repudiandae repellat illo repellendus voluptates rem quis.
           </p>
