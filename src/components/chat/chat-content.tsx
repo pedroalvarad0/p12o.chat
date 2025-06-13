@@ -10,6 +10,7 @@ import { ChatContentSkeleton } from "./chat-content-skeleton";
 import { useMessages } from "@/hooks/use-messages";
 import { useChatInputStore } from "@/lib/stores/chat-input-store";
 import { useStreamingAIResponse } from "@/hooks/use-openai-stream";
+import { useStreamingStore } from "@/lib/stores/streaming-store";
 
 export function ChatContent() {
   const { chat_id } = useParams();
@@ -28,11 +29,12 @@ export function ChatContent() {
       messages.data.length > 0 &&
       messages.data[messages.data.length - 1].role === "user"
     ) {
+      console.log("generar ai respuesta");
       generateStreamingResponse({
         chatId,
         context: messages.data,
         model,
-      })
+      }).catch(console.error);
     }
   }, [messages.data, generateStreamingResponse, chatId, model]);
 

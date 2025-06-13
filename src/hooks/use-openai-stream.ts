@@ -1,12 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Message } from '@/lib/types';
 import { useStreamingStore } from '@/lib/stores/streaming-store';
 
 export function useStreamingAIResponse() {
-  const [isStreaming, setIsStreaming] = useState(false);
   const queryClient = useQueryClient();
-  const { setStreaming, clearStreaming } = useStreamingStore();
+  const { setStreaming } = useStreamingStore();
 
   const generateStreamingResponse = useCallback(async ({
     chatId,
@@ -17,17 +16,18 @@ export function useStreamingAIResponse() {
     context: Message[];
     model: string;
   }) => {
-    setIsStreaming(true);
-    setStreaming(chatId); // Update global streaming state
+    setStreaming(chatId);
     
     try {
       const response = await fetch('/api/ai-stream', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chatId, context, model }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       if (!response.body) {
         throw new Error('No response body');
@@ -35,12 +35,10 @@ export function useStreamingAIResponse() {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-
-      let streamingMessage: Message | null = null;
+      let currentMessageId: string | null = null;
 
       while (true) {
         const { done, value } = await reader.read();
-        
         if (done) break;
 
         const chunk = decoder.decode(value);
@@ -51,46 +49,30 @@ export function useStreamingAIResponse() {
             const data = JSON.parse(line);
             
             if (data.type === 'chunk') {
-              // Update the streaming message in cache
+              currentMessageId = data.messageId;
+              
               queryClient.setQueryData(['messages', chatId], (old: Message[] = []) => {
-                const updatedMessages = [...old];
+                const existingMessageIndex = old.findIndex(m => m.id === data.messageId);
                 
-                if (!streamingMessage) {
-                  // Create initial streaming message
-                  streamingMessage = {
+                if (existingMessageIndex === -1) {
+                  // Create new message
+                  return [...old, {
                     id: data.messageId,
                     chat_id: chatId,
-                    content: data.content,
+                    content: data.fullContent,
                     role: 'assistant',
                     created_at: new Date().toISOString(),
                     metadata: {}
-                  };
-                  updatedMessages.push(streamingMessage);
+                  }];
                 } else {
-                  // Update existing streaming message
-                  const messageIndex = updatedMessages.findIndex(m => m.id === data.messageId);
-                  if (messageIndex !== -1) {
-                    updatedMessages[messageIndex] = {
-                      ...updatedMessages[messageIndex],
-                      content: data.fullContent
-                    };
-                  }
-                }
-                
-                return updatedMessages;
-              });
-            } else if (data.type === 'complete') {
-              // Final update
-              queryClient.setQueryData(['messages', chatId], (old: Message[] = []) => {
-                const updatedMessages = [...old];
-                const messageIndex = updatedMessages.findIndex(m => m.id === data.messageId);
-                if (messageIndex !== -1) {
-                  updatedMessages[messageIndex] = {
-                    ...updatedMessages[messageIndex],
+                  // Update existing message
+                  const updatedMessages = [...old];
+                  updatedMessages[existingMessageIndex] = {
+                    ...updatedMessages[existingMessageIndex],
                     content: data.fullContent
                   };
+                  return updatedMessages;
                 }
-                return updatedMessages;
               });
             }
           } catch (error) {
@@ -102,13 +84,9 @@ export function useStreamingAIResponse() {
       console.error('Streaming error:', error);
       throw error;
     } finally {
-      setIsStreaming(false);
-      clearStreaming(); // Clear global streaming state
+      setStreaming(null);
     }
-      }, [queryClient, setStreaming, clearStreaming]);
+  }, [queryClient, setStreaming]);
 
-  return {
-    generateStreamingResponse,
-    isStreaming
-  };
+  return { generateStreamingResponse };
 } 
