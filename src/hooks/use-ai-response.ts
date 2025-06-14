@@ -8,7 +8,7 @@ import { useCallback } from "react";
 
 export function useAIResponse() {
   const { createAndUpdateMessage } = useMessageMutations();
-  const { setStreaming } = useStreamingStore();
+  const { setStreaming, setWaitingCompletion } = useStreamingStore();
   const queryClient = useQueryClient();
 
   const updateMessageContent = useCallback((message: Message, content: string) => {
@@ -25,6 +25,7 @@ export function useAIResponse() {
 
   const generateResponse = useCallback(async (chatId: string, context: Message[], model: string = "gpt-4o") => {
     setStreaming(true);
+    setWaitingCompletion(true);
 
     try {
       const message = await createAndUpdateMessage({
@@ -35,6 +36,9 @@ export function useAIResponse() {
       });
 
       const completion = await createChatCompletion(context, model);
+
+      setWaitingCompletion(false);
+
       let fullContent = "";
 
       for await (const chunk of completion) {
@@ -58,6 +62,7 @@ export function useAIResponse() {
       throw error;
     } finally {
       setStreaming(false);
+      setWaitingCompletion(false);
     }
   }, [createAndUpdateMessage, setStreaming, updateMessageContent, shouldUpdateDatabase]);
 

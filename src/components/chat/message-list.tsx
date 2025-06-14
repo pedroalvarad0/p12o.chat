@@ -12,7 +12,7 @@ interface MessageListProps {
 
 export function MessageList({ chatId }: MessageListProps) {
   const messages = useMessages(chatId);
-  const { isStreaming, streamingChatId } = useStreamingStore();
+  const { isStreaming, isWaitingCompletion } = useStreamingStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom when messages are loaded
@@ -43,7 +43,6 @@ export function MessageList({ chatId }: MessageListProps) {
           // Check if this is the last message and if it's currently being streamed
           const isLastMessage = index === messages.data.length - 1;
           const isStreamingThisMessage = isStreaming &&
-            streamingChatId === chatId &&
             message.role === 'assistant' &&
             isLastMessage;
 
@@ -52,6 +51,8 @@ export function MessageList({ chatId }: MessageListProps) {
               key={message.id}
               message={message}
               isStreaming={isStreamingThisMessage}
+              isWaitingCompletion={isWaitingCompletion}
+              isLastMessage={isLastMessage}
             />
           );
         })}

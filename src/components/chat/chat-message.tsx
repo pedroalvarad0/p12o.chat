@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 interface ChatMessageProps {
   message: Message;
   isStreaming?: boolean;
+  isWaitingCompletion?: boolean;
+  isLastMessage?: boolean;
 }
 
-export function ChatMessage({ message, isStreaming = false }: ChatMessageProps) {
+export function ChatMessage({ message, isStreaming = false, isWaitingCompletion = false, isLastMessage = false }: ChatMessageProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -22,13 +24,23 @@ export function ChatMessage({ message, isStreaming = false }: ChatMessageProps) 
   return (
     <div className={`flex justify-start mb-4`}>
       <div className={`
-        ${isUser ? 'max-w-[80%]' : ''} ${isUser ? 'p-2' : 'p-0'} rounded-lg relative group
+        ${isUser ? 'max-w-[80%]' : ''} ${isUser ? 'p-3' : 'p-0'} rounded-lg relative group
         ${isUser
           ? 'bg-muted'
           : 'bg-background'
         }
         ${isStreaming ? 'animate-pulse' : ''}
       `}>
+
+        {isWaitingCompletion && isLastMessage && !isUser && (
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex space-x-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[bounce_1s_infinite_0ms]" />
+              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[bounce_1s_infinite_200ms]" />
+              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[bounce_1s_infinite_400ms]" />
+            </div>
+          </div>
+        )}
 
         {/* Message content */}
         <div className="prose prose-sm max-w-none dark:prose-invert">
