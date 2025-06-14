@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useRef, useEffect } from "react";
 import { Button } from "../ui/button";
-import { ArrowUp, Loader2 } from "lucide-react";
+import { ArrowUp, Loader2, CircleStop } from "lucide-react";
 import { useChatInputStore } from "@/lib/stores/chat-input-store";
 import { createMessage } from "@/lib/actions/messages";
 import { toast } from "sonner";
@@ -30,7 +30,7 @@ export function ChatInput() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { mutateAsync: createChatMutation } = useCreateChat();
   const { createAndUpdateMessage } = useMessageMutations();
-  const { isStreaming } = useStreamingStore();
+  const { isStreaming, setStreaming } = useStreamingStore();
   const router = useRouter();
 
   const pathname = usePathname();
@@ -97,6 +97,10 @@ export function ChatInput() {
     }
   }
 
+  const handleStopStreaming = () => {
+    setStreaming(false);
+  }
+
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -135,13 +139,38 @@ export function ChatInput() {
               </SelectContent>
             </Select>
 
-            <Button type="submit" variant="default" className="w-[40px] h-[40px]" disabled={!input.trim() || isSending || isStreaming}>
-              {(isSending || isStreaming) ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <ArrowUp className="size-4" />
-              )}
-            </Button>
+            {
+              (!isStreaming) && (
+                <Button
+                  type="submit"
+                  variant="default"
+                  className="w-[40px] h-[40px]"
+                  disabled={!input.trim() || isSending}
+                >
+                  {
+                    isSending ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <ArrowUp className="size-4" />
+                    )
+                  }
+                </Button>
+              )
+            }
+
+            {
+              (isStreaming) && (
+                <Button
+                  type="button"
+                  variant="default"
+                  className="w-[40px] h-[40px]"
+                  onClick={handleStopStreaming}
+                >
+                  <CircleStop className="size-4" />
+                </Button>
+              )
+            }
+
           </div>
         </form>
       </div>
