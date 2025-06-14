@@ -18,7 +18,7 @@ export async function getMessages(chatId: string): Promise<Message[]> {
   return data;
 }
 
-export async function createMessage(chatId: string, content: string, role: string): Promise<Message> {
+export async function createMessage(chatId: string, content: string, role: string, status: string): Promise<Message> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -26,7 +26,8 @@ export async function createMessage(chatId: string, content: string, role: strin
     .insert({
       chat_id: chatId,
       content: content,
-      role: role
+      role: role,
+      status: status
     })
     .select()
     .single();
@@ -38,12 +39,12 @@ export async function createMessage(chatId: string, content: string, role: strin
   return data;
 }
 
-export async function updateMessage(messageId: string, content: string): Promise<Message> {
+export async function updateMessage(messageId: string, content: string, status: string): Promise<Message> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from('messages')
-    .update({ content })
+    .update({ content, status })
     .eq('id', messageId)
     .select()
     .single();

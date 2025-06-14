@@ -9,6 +9,7 @@ export interface Message {
     id: string;
     chat_id: string;
     role: string;
+    status: string;
     content: string;
     created_at: string;
     metadata: Record<string, any>;

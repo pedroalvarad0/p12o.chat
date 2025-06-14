@@ -9,8 +9,8 @@ import { MessageList } from "./message-list";
 import { ChatContentSkeleton } from "./chat-content-skeleton";
 import { useMessages } from "@/hooks/use-messages";
 import { useChatInputStore } from "@/lib/stores/chat-input-store";
-import { useStreamingAIResponse } from "@/hooks/use-openai-stream";
 import { useStreamingStore } from "@/lib/stores/streaming-store";
+import { useAIResponse } from "@/hooks/use-ai-response";
 
 export function ChatContent() {
   const { chat_id } = useParams();
@@ -21,22 +21,19 @@ export function ChatContent() {
   const messages = useMessages(chatId);
   const chat = chats.data?.find((chat) => chat.id === chatId);
   const { selectChat } = useChatStore();
-  const { generateStreamingResponse } = useStreamingAIResponse();
+  const { isStreaming } = useStreamingStore();
+  const { generateResponse } = useAIResponse();
 
   useEffect(() => {
-    if (
-      messages.data && 
-      messages.data.length > 0 &&
-      messages.data[messages.data.length - 1].role === "user"
-    ) {
-      console.log("generar ai respuesta");
-      generateStreamingResponse({
-        chatId,
-        context: messages.data,
-        model,
-      }).catch(console.error);
+    const lastMessage = messages.data?.[messages.data.length - 1];
+    
+    if (lastMessage?.role === "user" && messages.data && !isStreaming) {
+      generateResponse(chatId, messages.data, model)
+        .catch(error => {
+          console.error('Error generating AI response:', error);
+        });
     }
-  }, [messages.data, generateStreamingResponse, chatId, model]);
+  }, [messages.data, isStreaming, chatId, model, generateResponse]);
 
   useEffect(() => {
     if (!chats.isLoading && !chats.isError && chats.data && chats.data.length > 0) {

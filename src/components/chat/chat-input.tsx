@@ -2,7 +2,7 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Button } from "../ui/button";
 import { ArrowUp, Loader2 } from "lucide-react";
 import { useChatInputStore } from "@/lib/stores/chat-input-store";
@@ -11,14 +11,10 @@ import { toast } from "sonner";
 import { useUser } from "@/hooks/use-user";
 import { useCreateChat } from "@/hooks/use-chats";
 import { useRouter } from "next/navigation";
-import { useGenerateAIResponse } from "@/hooks/use-openai";
-import { generateAIResponse } from "@/lib/actions/openai";
-import { useCreateMessage } from "@/hooks/use-messages";
-import { useQueryClient } from "@tanstack/react-query";
-import { Message } from "@/lib/types";
-import { useStreamingAIResponse } from "@/hooks/use-openai-stream";
+import { useMessageMutations } from "@/hooks/use-messages";
 import { usePathname } from "next/navigation";
 import { useChatStore } from "@/lib/stores/chat-store";
+import { useStreamingStore } from "@/lib/stores/streaming-store";
 
 const MAX_CHARS = 1000;
 const MIN_HEIGHT = 100;
@@ -33,8 +29,8 @@ export function ChatInput() {
   const { model, input, isSending, setModel, setInput, setIsSending } = useChatInputStore();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { mutateAsync: createChatMutation } = useCreateChat();
-  const { mutateAsync: createMessageMutation } = useCreateMessage();
-  const { isStreaming } = useStreamingAIResponse();
+  const { createAndUpdateMessage } = useMessageMutations();
+  const { isStreaming } = useStreamingStore();
   const router = useRouter();
 
   const pathname = usePathname();
@@ -75,21 +71,29 @@ export function ChatInput() {
         return;
       }
 
-      if (isHome) {
-        const newChat = await createChatMutation();
-        await createMessage(newChat.id, input.trim(), "user");
+      try {
+        if (isHome) {
+          const newChat = await createChatMutation();
+          await createMessage(newChat.id, input.trim(), "user", "complete");
+  
+          router.push(`/chat/${newChat.id}`);
+        } else {
+          await createAndUpdateMessage({
+            chatId: selectedChatId!,
+            content: input.trim(),
+            role: "user",
+            status: "complete"
+          });
+        }
 
-        router.push(`/chat/${newChat.id}`);
-      } else {
-        await createMessageMutation({
-          chatId: selectedChatId!,
-          content: input.trim(),
-          role: "user"
-        });
+        setInput("");
+  
+      } catch (error) {
+        toast.error("Error creating chat");
+      } finally {
+        
+        setIsSending(false);
       }
-
-      setInput("");
-      setIsSending(false);
     }
   }
 
