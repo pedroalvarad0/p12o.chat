@@ -1,7 +1,7 @@
 "use client";
 
 import { useMessages } from "@/hooks/use-messages";
-import { ChatMessage } from "./chat-message";
+import { ChatMessage } from "../messages/chat-message";
 import { useStreamingStore } from "@/lib/stores/streaming-store";
 import { ChatContentSkeleton } from "./chat-content-skeleton";
 import { useEffect, useRef } from "react";
