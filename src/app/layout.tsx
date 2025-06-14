@@ -44,12 +44,13 @@ export default async function RootLayout({
           <ReactQueryProvider>
             <SidebarProvider>
               <AppSidebar />
-              <main className="flex-1 relative flex flex-col">
+              <main className="flex-1 relative flex flex-col min-h-screen">
 
                 <SidebarTrigger />
 
-
-                {children}
+                <div className="flex-1">
+                  {children}
+                </div>
 
                 <ChatInput />
 
