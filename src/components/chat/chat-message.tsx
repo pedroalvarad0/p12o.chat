@@ -32,7 +32,7 @@ export function ChatMessage({ message, isStreaming = false }: ChatMessageProps) 
 
         {/* Message content */}
         <div className="prose prose-sm max-w-none dark:prose-invert">
-          <p className="whitespace-pre-wrap text-sm leading-relaxed mb-0">
+          <p className="whitespace-pre-wrap text-base leading-relaxed mb-0">
             {message.content}
           </p>
         </div>

@@ -33,7 +33,7 @@ export async function createMessage(chatId: string, content: string, role: strin
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error("flag " + error.message);
   }
 
   return data;
