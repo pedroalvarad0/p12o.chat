@@ -74,7 +74,12 @@ export function ChatInput() {
       try {
         if (isHome) {
           const newChat = await createChatMutation();
-          await createMessage(newChat.id, input.trim(), "user", "complete");
+          await createMessage(
+            newChat.id,
+            input.trim(),
+            "user",
+            "complete"
+          );
   
           router.push(`/chat/${newChat.id}`);
         } else {

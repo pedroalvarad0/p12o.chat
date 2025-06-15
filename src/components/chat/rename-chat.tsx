@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,10 @@ export function RenameChat({ chatId, chatName, open, onOpenChange }: RenameChatP
   const [name, setName] = useState(chatName);
   const [isSaving, setIsSaving] = useState(false);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setName(chatName);
+  }, [chatName]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

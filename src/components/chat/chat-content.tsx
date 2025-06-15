@@ -11,6 +11,10 @@ import { useMessages } from "@/hooks/use-messages";
 import { useChatInputStore } from "@/lib/stores/chat-input-store";
 import { useStreamingStore } from "@/lib/stores/streaming-store";
 import { useAIResponse } from "@/hooks/use-ai-response";
+import { generateChatTitle } from "@/lib/actions/openai";
+import { renameChat } from "@/lib/actions/chats";
+import { useQueryClient } from "@tanstack/react-query";
+import { Chat } from "@/lib/types";
 
 export function ChatContent() {
   const { chat_id } = useParams();
@@ -23,17 +27,45 @@ export function ChatContent() {
   const { selectChat } = useChatStore();
   const { isStreaming } = useStreamingStore();
   const { generateResponse } = useAIResponse();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const lastMessage = messages.data?.[messages.data.length - 1];
     
-    if (lastMessage?.role === "user" && messages.data && !isStreaming) {
+    if (lastMessage?.role === "user" && messages.data && !isStreaming && chat) {
+      
       generateResponse(chatId, messages.data, model)
         .catch(error => {
           console.error('Error generating AI response:', error);
         });
+
+      
+      if (chat.name === "New Chat") {
+        generateChatTitle(lastMessage.content)
+          .then(async (title) => {
+            if (title) {
+              try {
+                await renameChat(chatId, title);
+                
+                
+                queryClient.setQueryData(['chats'], (old: Chat[] = []) => 
+                  old.map(chat => 
+                    chat.id === chatId ? { ...chat, name: title } : chat
+                  )
+                );
+              } catch (error) {
+                console.error('Error renaming chat:', error);
+              }
+            }
+          })
+          .catch(error => {
+            console.error('Error generating chat title:', error);
+          });
+      }
     }
-  }, [messages.data, isStreaming, chatId, model, generateResponse]);
+  }, [messages.data, isStreaming, chatId, model, generateResponse, chat, queryClient]);
+
+ 
 
   useEffect(() => {
     if (!chats.isLoading && !chats.isError && chats.data && chats.data.length > 0) {

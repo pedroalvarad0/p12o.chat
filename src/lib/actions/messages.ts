@@ -18,7 +18,12 @@ export async function getMessages(chatId: string): Promise<Message[]> {
   return data;
 }
 
-export async function createMessage(chatId: string, content: string, role: string, status: string): Promise<Message> {
+export async function createMessage(
+  chatId: string, 
+  content: string, 
+  role: string,
+  status: string,
+): Promise<Message> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
