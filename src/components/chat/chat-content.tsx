@@ -8,15 +8,15 @@ import { redirect } from "next/navigation";
 import { MessageList } from "./message-list";
 import { ChatContentSkeleton } from "./chat-content-skeleton";
 import { useMessages } from "@/hooks/use-messages";
-import { useChatInputStore } from "@/lib/stores/chat-input-store";
 import { useStreamingStore } from "@/lib/stores/streaming-store";
 import { useAIResponse } from "@/hooks/use-ai-response";
 import { useAutoRenameChat } from "@/hooks/use-auto-rename-chat";
+import { useModelStore } from "@/lib/stores/model-store";
 
 export function ChatContent() {
   const { chat_id } = useParams();
   const chatId = chat_id as string;
-  const { model } = useChatInputStore();
+  const { model } = useModelStore();
   const user = useUser();
   const chats = useChats({ enabled: !!user.data });
   const messages = useMessages(chatId);

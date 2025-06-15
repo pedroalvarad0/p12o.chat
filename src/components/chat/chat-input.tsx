@@ -15,6 +15,7 @@ import { useMessageMutations } from "@/hooks/use-messages";
 import { usePathname } from "next/navigation";
 import { useChatStore } from "@/lib/stores/chat-store";
 import { useStreamingStore } from "@/lib/stores/streaming-store";
+import { SelectModel } from "../models/select-model";
 
 const MAX_CHARS = 1000;
 const MIN_HEIGHT = 100;
@@ -25,8 +26,7 @@ export function ChatInput() {
   const user = useUser();
   const { selectedChatId } = useChatStore();
 
-  //const { data: user } = useUser();
-  const { model, input, isSending, setModel, setInput, setIsSending } = useChatInputStore();
+  const { input, isSending, setInput, setIsSending } = useChatInputStore();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { mutateAsync: createChatMutation } = useCreateChat();
   const { createAndUpdateMessage } = useMessageMutations();
@@ -134,15 +134,7 @@ export function ChatInput() {
           </div>
 
           <div className="flex items-center justify-between gap-2 p-2 border-t bg-muted/50">
-            <Select value={model} onValueChange={setModel}>
-              <SelectTrigger className="w-[200px] border-0 bg-transparent focus:ring-0">
-                <SelectValue placeholder="Select a model" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="gpt-4o">gpt-4o</SelectItem>
-                <SelectItem value="gpt-4o-mini">gpt-4o-mini</SelectItem>
-              </SelectContent>
-            </Select>
+            <SelectModel />
 
             {
               (!isStreaming) && (

@@ -46,7 +46,7 @@ Be direct and concise.
   `
 }
 
-export async function createChatCompletion(context: Message[], model: string = "gpt-4o") {
+export async function createChatCompletion(context: Message[], model: string = "openai/gpt-4o") {
   try {
     const formattedMessages = [
       systemPrompt,
@@ -57,7 +57,7 @@ export async function createChatCompletion(context: Message[], model: string = "
     ];
 
     return openai.chat.completions.create({
-      model: `openai/${model}`,
+      model: model,
       messages: formattedMessages,
       stream: true
     });

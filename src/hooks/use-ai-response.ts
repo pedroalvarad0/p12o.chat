@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { updateMessage } from "@/lib/actions/messages";
 import { useStreamingStore } from "@/lib/stores/streaming-store";
 import { useCallback, useRef, useEffect } from "react";
+import { getOpenRouterModelName } from "@/utils/models";
 
 export function useAIResponse() {
   const { createAndUpdateMessage } = useMessageMutations();
@@ -40,7 +41,8 @@ export function useAIResponse() {
         status: "streaming"
       });
 
-      const completion = await createChatCompletion(context, model);
+      const modelWithProvider = getOpenRouterModelName(model);
+      const completion = await createChatCompletion(context, modelWithProvider);
 
       setWaitingCompletion(false);
 
