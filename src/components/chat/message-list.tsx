@@ -36,9 +36,9 @@ export function MessageList({ chatId }: MessageListProps) {
 
   return (
     <div
-      className="flex-1 w-full max-w-4xl mx-auto px-3 mt-8 sm:px-6 md:px-8 py-4 overflow-y-auto"
+      className="flex-1 w-full max-w-4xl mx-auto px-3 mt-8 sm:px-6 md:px-8 py-4 overflow-y-auto min-w-0"
     >
-      <div className="flex flex-col">
+      <div className="flex flex-col min-w-0">
         {messages.data?.map((message, index) => {
           // Check if this is the last message and if it's currently being streamed
           const isLastMessage = index === messages.data.length - 1;

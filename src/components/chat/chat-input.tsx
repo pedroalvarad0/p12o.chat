@@ -109,8 +109,8 @@ export function ChatInput() {
   }
 
   return (
-    <div className="sticky bottom-0 w-full">
-      <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8">
+    <div className="sticky bottom-0 w-full min-w-0">
+      <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8 min-w-0">
         <form onSubmit={handleSubmit} className="relative flex flex-col rounded-t-lg border bg-background shadow-sm">
           <div className="relative">
             <Textarea

@@ -31,7 +31,7 @@ export function AssistantMessage({
   return (
     <div className="flex justify-start mb-4">
       <div className={`
-        p-0 rounded-lg relative group bg-background max-w-full
+        p-0 rounded-lg relative group bg-background w-full min-w-0
         ${isStreaming ? 'animate-pulse' : ''}
       `}>
         {/* Waiting completion indicator */}
@@ -46,17 +46,19 @@ export function AssistantMessage({
         )}
 
         {/* Message content */}
-        <div className="prose prose-sm max-w-none dark:prose-invert overflow-hidden">
+        <div className="prose prose-sm max-w-none dark:prose-invert min-w-0 w-full">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeHighlight]}
             components={{
               // Personalizar el renderizado de elementos específicos
               p: ({ children }) => (
-                <p className="text-base mb-4 last:mb-0 leading-7">{children}</p>
+                <p className="text-base mb-4 last:mb-0 leading-7 break-words">{children}</p>
               ),
               pre: ({ children }) => (
-                <pre className="bg-muted rounded-lg overflow-x-auto my-4 text-xs leading-7 max-w-full">{children}</pre>
+                <div className="w-full min-w-0 my-4">
+                  <pre className="bg-muted rounded-lg overflow-x-auto text-xs leading-7 w-full">{children}</pre>
+                </div>
               ),
               code: ({ children, className, ...props }) => {
                 const isInline = !className?.includes('language-');
@@ -83,10 +85,12 @@ export function AssistantMessage({
                 <li className="pl-1 leading-7 break-words">{children}</li>
               ),
               table: ({ children }) => (
-                <div className="overflow-x-auto my-4 max-w-full">
-                  <table className="min-w-full border-collapse border border-border">
-                    {children}
-                  </table>
+                <div className="w-full min-w-0 my-4">
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse border border-border">
+                      {children}
+                    </table>
+                  </div>
                 </div>
               ),
               th: ({ children }) => (
@@ -95,7 +99,7 @@ export function AssistantMessage({
                 </th>
               ),
               td: ({ children }) => (
-                <td className="border border-border px-4 py-2">{children}</td>
+                <td className="border border-border px-4 py-2 break-words">{children}</td>
               ),
             }}
           >

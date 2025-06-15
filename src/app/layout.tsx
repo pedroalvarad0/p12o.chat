@@ -44,11 +44,11 @@ export default async function RootLayout({
           <ReactQueryProvider>
             <SidebarProvider>
               <AppSidebar />
-              <main className="flex-1 relative flex flex-col min-h-screen">
+              <main className="flex-1 relative flex flex-col min-h-screen min-w-0">
 
                 <SidebarTrigger />
 
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   {children}
                 </div>
 
