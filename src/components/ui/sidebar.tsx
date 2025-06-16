@@ -40,9 +40,6 @@ type SidebarContextProps = {
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
   toggleSidebar: () => void
-  mobileOpenDuration: number
-  mobileCloseDuration: number
-  desktopDuration: number
 }
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null)
@@ -60,9 +57,6 @@ function SidebarProvider({
   defaultOpen = true,
   open: openProp,
   onOpenChange: setOpenProp,
-  mobileOpenDuration = 25,
-  mobileCloseDuration = 50,
-  desktopDuration = 50,
   className,
   style,
   children,
@@ -71,9 +65,6 @@ function SidebarProvider({
   defaultOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
-  mobileOpenDuration?: number
-  mobileCloseDuration?: number
-  desktopDuration?: number
 }) {
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
@@ -131,11 +122,8 @@ function SidebarProvider({
       openMobile,
       setOpenMobile,
       toggleSidebar,
-      mobileOpenDuration,
-      mobileCloseDuration,
-      desktopDuration,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, mobileOpenDuration, mobileCloseDuration, desktopDuration]
+    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
   )
 
   return (
@@ -175,7 +163,7 @@ function Sidebar({
   variant?: "sidebar" | "floating" | "inset"
   collapsible?: "offcanvas" | "icon" | "none"
 }) {
-  const { isMobile, state, openMobile, setOpenMobile, mobileOpenDuration, mobileCloseDuration, desktopDuration } = useSidebar()
+  const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
   if (collapsible === "none") {
     return (
@@ -206,8 +194,6 @@ function Sidebar({
             } as React.CSSProperties
           }
           side={side}
-          openDuration={mobileOpenDuration}
-          closeDuration={mobileCloseDuration}
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Sidebar</SheetTitle>
@@ -232,21 +218,18 @@ function Sidebar({
       <div
         data-slot="sidebar-gap"
         className={cn(
-          "relative w-(--sidebar-width) bg-transparent transition-[width] ease-linear",
+          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
           "group-data-[collapsible=offcanvas]:w-0",
           "group-data-[side=right]:rotate-180",
           variant === "floating" || variant === "inset"
             ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
             : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
         )}
-        style={{
-          transitionDuration: `${desktopDuration}ms`,
-        }}
       />
       <div
         data-slot="sidebar-container"
         className={cn(
-          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] ease-linear md:flex",
+          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
           side === "left"
             ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
             : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
@@ -256,10 +239,6 @@ function Sidebar({
             : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
           className
         )}
-        style={{
-          transitionDuration: `${desktopDuration}ms`,
-          ...props.style,
-        }}
         {...props}
       >
         <div
@@ -420,21 +399,16 @@ function SidebarGroupLabel({
   ...props
 }: React.ComponentProps<"div"> & { asChild?: boolean }) {
   const Comp = asChild ? Slot : "div"
-  const { desktopDuration } = useSidebar()
 
   return (
     <Comp
       data-slot="sidebar-group-label"
       data-sidebar="group-label"
       className={cn(
-        "text-sidebar-foreground/70 ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-hidden transition-[margin,opacity] ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+        "text-sidebar-foreground/70 ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
         "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
         className
       )}
-      style={{
-        transitionDuration: `${desktopDuration}ms`,
-        ...props.style,
-      }}
       {...props}
     />
   )
@@ -750,26 +724,3 @@ export {
   SidebarTrigger,
   useSidebar,
 }
-
-/**
- * Ejemplo de uso con animaciones personalizadas:
- * 
- * <SidebarProvider 
- *   mobileOpenDuration={150}    // 150ms para abrir en móvil
- *   mobileCloseDuration={100}   // 100ms para cerrar en móvil
- *   desktopDuration={30}        // 30ms para todas las animaciones en desktop
- * >
- *   <Sidebar>
- *     <SidebarContent>
- *       // ... contenido del sidebar
- *     </SidebarContent>
- *   </Sidebar>
- * </SidebarProvider>
- * 
- * Props de duración:
- * - mobileOpenDuration: Duración para abrir en móvil (default: 100ms)
- * - mobileCloseDuration: Duración para cerrar en móvil (default: 100ms)  
- * - desktopDuration: Duración para todas las animaciones en desktop (default: 50ms)
- * 
- * 💡 Para eliminar completamente el delay, usa valores muy bajos como 30ms o incluso 0ms
- */
