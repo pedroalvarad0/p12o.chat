@@ -1,6 +1,6 @@
 'use client'
 import { useParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useChats } from "@/hooks/use-chats";
 import { useChatStore } from "@/lib/stores/chat-store";
 import { useUser } from "@/hooks/use-user";
@@ -24,6 +24,11 @@ export function ChatContent() {
   const { selectChat } = useChatStore();
   const { isStreaming } = useStreamingStore();
   const { generateResponse } = useAIResponse();
+  
+  // Ref para rastrear si ya se generó una respuesta para este mensaje
+  const lastProcessedMessageRef = useRef<string | null>(null);
+
+  //console.log(messages.data);
 
   useAutoRenameChat({
     chatId,
@@ -36,9 +41,17 @@ export function ChatContent() {
     const lastMessage = messages.data?.[messages.data.length - 1];
     
     if (lastMessage?.role === "user" && messages.data && !isStreaming) {
+      if (lastProcessedMessageRef.current === lastMessage.id) {
+        return;
+      }
+      
+      lastProcessedMessageRef.current = lastMessage.id;
+      
       generateResponse(chatId, messages.data, model)
         .catch(error => {
           console.error('Error generating AI response:', error);
+          
+          lastProcessedMessageRef.current = null;
         });
     }
   }, [messages.data, isStreaming, chatId, model, generateResponse]);

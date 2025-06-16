@@ -24,6 +24,28 @@ export async function getChats(): Promise<Chat[]> {
   return chats;
 }
 
+export async function createFullChat(chat: Chat) {
+  const supabase = await createClient();
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+  if (authError) {
+    throw new Error(authError.message);
+  }
+
+  const { data: chat_, error: dbError } = await supabase
+    .from('chats')
+    .insert({ ...chat, user_id: user?.id })
+    .select()
+    .single();
+
+  if (dbError) {
+    throw new Error(dbError.message);
+  }
+
+  return chat_;
+}
+
 export async function createChat(): Promise<Chat> {
   const supabase = await createClient();
 

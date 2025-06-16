@@ -18,6 +18,22 @@ export async function getMessages(chatId: string): Promise<Message[]> {
   return data;
 }
 
+export async function createFullMessage(message: Message) {
+  const supabase = await createClient();
+
+  const { data: message_, error: dbError } = await supabase
+    .from('messages')
+    .insert(message)
+    .select()
+    .single();
+
+  if (dbError) {
+    throw new Error(dbError.message);
+  }
+
+  return message_;
+}
+
 export async function createMessage(
   chatId: string, 
   content: string, 

@@ -16,6 +16,7 @@ import { usePathname } from "next/navigation";
 import { useChatStore } from "@/lib/stores/chat-store";
 import { useStreamingStore } from "@/lib/stores/streaming-store";
 import { SelectModel } from "../models/select-model";
+import { useOptimisticChatCreation } from "@/hooks/use-optimistic-chat-creation";
 
 const MAX_CHARS = 1000;
 const MIN_HEIGHT = 100;
@@ -32,6 +33,7 @@ export function ChatInput() {
   const { createAndUpdateMessage } = useMessageMutations();
   const { isStreaming, setStreaming } = useStreamingStore();
   const router = useRouter();
+  const optimisticChatCreation = useOptimisticChatCreation();
 
   const pathname = usePathname();
   const isHome = pathname === "/";
@@ -73,15 +75,18 @@ export function ChatInput() {
 
       try {
         if (isHome) {
-          const newChat = await createChatMutation();
-          await createMessage(
-            newChat.id,
-            input.trim(),
-            "user",
-            "complete"
-          );
+          await optimisticChatCreation.mutateAsync({
+            content: input.trim()
+          })
+          // const newChat = await createChatMutation();
+          // await createMessage(
+          //   newChat.id,
+          //   input.trim(),
+          //   "user",
+          //   "complete"
+          // );
   
-          router.push(`/chat/${newChat.id}`);
+          // router.push(`/chat/${newChat.id}`);
         } else {
           await createAndUpdateMessage({
             chatId: selectedChatId!,
