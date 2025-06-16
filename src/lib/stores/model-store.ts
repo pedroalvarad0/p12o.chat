@@ -6,7 +6,7 @@ interface ModelStore {
 }
 
 const initialState = {
-  model: 'gpt-4o',
+  model: 'GPT-4o',
 }
 
 export const useModelStore = create<ModelStore>((set) => ({
