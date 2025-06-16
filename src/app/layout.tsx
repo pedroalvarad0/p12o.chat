@@ -8,6 +8,7 @@ import { SidebarTrigger } from "@/components/sidebar/siderbar-trigger";
 import { ReactQueryProvider } from "@/providers/react-query-provider";
 import { Toaster } from "@/components/ui/sonner"
 import { ChatInput } from "@/components/chat/chat-input";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -60,6 +61,7 @@ export default async function RootLayout({
           </ReactQueryProvider>
         </ThemeProvider>
       </body>
+      <Script src="/proxy.js"  />
     </html>
   );
 }
