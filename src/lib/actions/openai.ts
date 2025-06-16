@@ -1,6 +1,6 @@
 'use server'
 
-import { openai } from "@/utils/openai";
+import { openai, createOpenAIClient } from "@/utils/openai";
 import { Message } from "../types";
 
 const systemPrompt = {
@@ -46,8 +46,10 @@ Be direct and concise.
   `
 }
 
-export async function createChatCompletion(context: Message[], model: string = "openai/gpt-4o") {
+export async function createChatCompletion(context: Message[], model: string = "openai/gpt-4o", userApiKey?: string) {
   try {
+    const client = createOpenAIClient(userApiKey);
+    
     const formattedMessages = [
       systemPrompt,
       ...context.map(({ role, content }) => ({
@@ -56,13 +58,18 @@ export async function createChatCompletion(context: Message[], model: string = "
       }))
     ];
 
-    return openai.chat.completions.create({
+    return client.chat.completions.create({
       model: model,
       messages: formattedMessages,
       stream: true
     });
   } catch (error) {
     console.error("Error creating chat completion:", error);
+    
+    if (error instanceof Error && 'status' in error && error.status === 401) {
+      throw new Error("Invalid API key. Please check your OpenRouter API key.");
+    }
+    
     throw new Error("Failed to create chat completion");
   }
 }

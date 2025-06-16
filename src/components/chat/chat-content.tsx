@@ -12,6 +12,7 @@ import { useStreamingStore } from "@/lib/stores/streaming-store";
 import { useAIResponse } from "@/hooks/use-ai-response";
 import { useAutoRenameChat } from "@/hooks/use-auto-rename-chat";
 import { useModelStore } from "@/lib/stores/model-store";
+import { toast } from "sonner";
 
 export function ChatContent() {
   const { chat_id } = useParams();
@@ -25,7 +26,6 @@ export function ChatContent() {
   const { isStreaming } = useStreamingStore();
   const { generateResponse } = useAIResponse();
   
-  // Ref para rastrear si ya se generó una respuesta para este mensaje
   const lastProcessedMessageRef = useRef<string | null>(null);
 
   //console.log(messages.data);
@@ -49,6 +49,7 @@ export function ChatContent() {
       
       generateResponse(chatId, messages.data, model)
         .catch(error => {
+          toast.error(error.message);
           console.error('Error generating AI response:', error);
           
           lastProcessedMessageRef.current = null;

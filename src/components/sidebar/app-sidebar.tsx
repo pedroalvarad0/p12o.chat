@@ -1,7 +1,7 @@
 "use client"
 
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/sidebar";
-import { ChevronUp, ChevronDown, CircleUser, LogOut, User, LogIn, Loader2, AlertCircle, SquarePlus } from "lucide-react";
+import { ChevronUp, ChevronDown, CircleUser, LogOut, User, LogIn, Loader2, AlertCircle, SquarePlus, Key } from "lucide-react";
 import { handleSignOut } from "@/lib/actions/auth";
 import { useState } from "react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../ui/dropdown-menu";
@@ -12,26 +12,26 @@ import { useChatStore } from "@/lib/stores/chat-store";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/hooks/use-user";
 import { ChatSidebarItem } from "./chat-sidebar-item";
+import { OpenRouterApiKeyDialog } from "../openrouter/openrouter-api-key-dialog";
+import { useOpenRouterApiKey } from "@/hooks/use-openrouter-api-key";
 
 export function AppSidebar() {
   const { data: user } = useUser();
-  const [isSigningOut, setIsSigningOut] = useState(false);
+  const { hasApiKey } = useOpenRouterApiKey();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [isOpenRouterApiKeyDialogOpen, setIsOpenRouterApiKeyDialogOpen] = useState(false);
   const { data: chats, isLoading: isLoadingChats, error: chatsError } = useChats({ 
-    enabled: !!user // Solo cargar chats si hay usuario
+    enabled: !!user 
   });
-  const { selectedChatId, selectChat } = useChatStore();
+  const { selectedChatId } = useChatStore();
 
   async function onSignOut() {
-    setIsSigningOut(true);
     try {
       await handleSignOut();
       window.location.reload();
     } catch (error) {
       console.error('Error signing out:', error);
-    } finally {
-      setIsSigningOut(false);
     }
   }
 
@@ -42,6 +42,7 @@ export function AppSidebar() {
 
         <SidebarMenu>
           {user ?(
+            <>
             <SidebarMenuItem>
               <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                 <DropdownMenuTrigger asChild>
@@ -65,6 +66,17 @@ export function AppSidebar() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={() => setIsOpenRouterApiKeyDialogOpen(true)}>
+                <Key />
+                <span>OpenRouter API Key</span>
+                {hasApiKey && (
+                  <div className="ml-auto w-2 h-2 bg-green-500 rounded-full" />
+                )}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            </>
           ) : (
             <SidebarMenuItem>
               <SidebarMenuButton onClick={() => setIsAuthDialogOpen(true)}>
@@ -141,6 +153,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <AuthDialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen} />
+      <OpenRouterApiKeyDialog open={isOpenRouterApiKeyDialogOpen} onOpenChange={setIsOpenRouterApiKeyDialogOpen} /> 
     </Sidebar>
   );
 }

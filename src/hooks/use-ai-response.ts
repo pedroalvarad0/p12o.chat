@@ -6,10 +6,12 @@ import { updateMessage } from "@/lib/actions/messages";
 import { useStreamingStore } from "@/lib/stores/streaming-store";
 import { useCallback, useRef, useEffect } from "react";
 import { getOpenRouterModelName } from "@/utils/models";
+import { useOpenRouterApiKey, getOpenRouterApiKey } from './use-openrouter-api-key';
 
 export function useAIResponse() {
   const { createAndUpdateMessage } = useMessageMutations();
   const { isStreaming, setStreaming, setWaitingCompletion } = useStreamingStore();
+  const { apiKey } = useOpenRouterApiKey();
   const queryClient = useQueryClient();
   const streamingRef = useRef(isStreaming);
 
@@ -30,6 +32,12 @@ export function useAIResponse() {
   }, []);
 
   const generateResponse = useCallback(async (chatId: string, context: Message[], model: string = "gpt-4o") => {
+    const currentApiKey = getOpenRouterApiKey();
+    
+    if (!currentApiKey && !process.env.OPENROUTER_API_KEY) {
+      throw new Error("No API key available. Please configure your OpenRouter API key in the sidebar.");
+    }
+
     setStreaming(true);
     setWaitingCompletion(true);
 
@@ -42,7 +50,7 @@ export function useAIResponse() {
       });
 
       const modelWithProvider = getOpenRouterModelName(model);
-      const completion = await createChatCompletion(context, modelWithProvider);
+      const completion = await createChatCompletion(context, modelWithProvider, currentApiKey || undefined);
 
       setWaitingCompletion(false);
 
@@ -79,5 +87,8 @@ export function useAIResponse() {
     }
   }, [createAndUpdateMessage, setStreaming, updateMessageContent, shouldUpdateDatabase]);
 
-  return { generateResponse };
+  return { 
+    generateResponse, 
+    hasApiKey: !!apiKey || !!process.env.OPENROUTER_API_KEY 
+  };
 }
