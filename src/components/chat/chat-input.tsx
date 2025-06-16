@@ -1,16 +1,12 @@
 "use client"
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useRef, useEffect } from "react";
 import { Button } from "../ui/button";
 import { ArrowUp, Loader2, CircleStop } from "lucide-react";
 import { useChatInputStore } from "@/lib/stores/chat-input-store";
-import { createMessage } from "@/lib/actions/messages";
 import { toast } from "sonner";
 import { useUser } from "@/hooks/use-user";
-import { useCreateChat } from "@/hooks/use-chats";
-import { useRouter } from "next/navigation";
 import { useMessageMutations } from "@/hooks/use-messages";
 import { usePathname } from "next/navigation";
 import { useChatStore } from "@/lib/stores/chat-store";
@@ -29,10 +25,8 @@ export function ChatInput() {
 
   const { input, isSending, setInput, setIsSending } = useChatInputStore();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { mutateAsync: createChatMutation } = useCreateChat();
-  const { createAndUpdateMessage } = useMessageMutations();
+  const { createMessageOptimistic } = useMessageMutations();
   const { isStreaming, setStreaming } = useStreamingStore();
-  const router = useRouter();
   const optimisticChatCreation = useOptimisticChatCreation();
 
   const pathname = usePathname();
@@ -78,17 +72,8 @@ export function ChatInput() {
           await optimisticChatCreation.mutateAsync({
             content: input.trim()
           })
-          // const newChat = await createChatMutation();
-          // await createMessage(
-          //   newChat.id,
-          //   input.trim(),
-          //   "user",
-          //   "complete"
-          // );
-  
-          // router.push(`/chat/${newChat.id}`);
         } else {
-          await createAndUpdateMessage({
+          await createMessageOptimistic({
             chatId: selectedChatId!,
             content: input.trim(),
             role: "user",
@@ -99,7 +84,9 @@ export function ChatInput() {
         setInput("");
   
       } catch (error) {
-        toast.error("Error creating chat");
+        if (!isHome) {
+          toast.error("Error sending message");
+        }
       } finally {
         
         setIsSending(false);
