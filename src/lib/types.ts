@@ -12,5 +12,5 @@ export interface Message {
     status: string;
     content: string;
     created_at: string;
-    metadata: Record<string, any>;
+    metadata: Record<string, string>;
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ export function RenameChat({ chatId, chatName, open, onOpenChange }: RenameChatP
       toast.success("Chat renamed successfully");
       onOpenChange(false, false);
     } catch (error) {
-      toast.error("Failed to rename chat");
+      toast.error("Failed to rename chat: " + (error instanceof Error ? error.message : String(error)));
     } finally {
       setIsSaving(false);
     }

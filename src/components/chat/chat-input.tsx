@@ -56,8 +56,8 @@ export function ChatInput() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (input.trim()) {
       setIsSending(true);
 
@@ -85,7 +85,7 @@ export function ChatInput() {
   
       } catch (error) {
         if (!isHome) {
-          toast.error("Error sending message");
+          toast.error("Error sending message: " + (error instanceof Error ? error.message : String(error)));
         }
       } finally {
         
@@ -101,7 +101,7 @@ export function ChatInput() {
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit(e as any);
+      await handleSubmit();
     }
   }
 

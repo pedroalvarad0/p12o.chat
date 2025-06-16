@@ -1,7 +1,7 @@
 "use client"
 
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/sidebar";
-import { ChevronUp, ChevronDown, CircleUser, LogOut, User, LogIn, Loader2, AlertCircle, SquarePlus, Key } from "lucide-react";
+import { ChevronUp, ChevronDown, CircleUser, LogOut, LogIn, Loader2, AlertCircle, SquarePlus, Key } from "lucide-react";
 import { handleSignOut } from "@/lib/actions/auth";
 import { useState } from "react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../ui/dropdown-menu";

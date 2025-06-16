@@ -41,7 +41,7 @@ export function DeleteChat({ chatId, open, onOpenChange }: DeleteChatProps) {
         }, 100);
       }
     } catch (error) {
-      toast.error("Failed to delete chat");
+      toast.error("Failed to delete chat: " + (error instanceof Error ? error.message : String(error)));
     } finally {
       setIsDeleting(false);
     }

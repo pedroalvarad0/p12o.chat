@@ -85,7 +85,7 @@ export function useAIResponse() {
       setStreaming(false);
       setWaitingCompletion(false);
     }
-  }, [createAndUpdateMessage, setStreaming, updateMessageContent, shouldUpdateDatabase]);
+  }, [createAndUpdateMessage, setStreaming, setWaitingCompletion, updateMessageContent, shouldUpdateDatabase]);
 
   return { 
     generateResponse, 

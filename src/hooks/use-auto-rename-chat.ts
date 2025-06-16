@@ -22,6 +22,24 @@ export function useAutoRenameChat({
   useEffect(() => {
     if (!messages || !chat || isStreaming) return;
 
+    const handleAutoRename = async (userMessage: string) => {
+      try {
+        const title = await generateChatTitle(userMessage);
+        
+        if (title) {
+          await renameChat(chatId, title);
+          
+          queryClient.setQueryData(['chats'], (old: Chat[] = []) => 
+            old.map(chat => 
+              chat.id === chatId ? { ...chat, name: title } : chat
+            )
+          );
+        }
+      } catch (error) {
+        console.error('Error in auto-rename process:', error);
+      }
+    };
+
     const lastMessage = messages[messages.length - 1];
     
     if (lastMessage?.role === "user" && chat.name === "New Chat") {
@@ -29,21 +47,5 @@ export function useAutoRenameChat({
     }
   }, [messages, chat, isStreaming, chatId, queryClient]);
 
-  const handleAutoRename = async (userMessage: string) => {
-    try {
-      const title = await generateChatTitle(userMessage);
-      
-      if (title) {
-        await renameChat(chatId, title);
-        
-        queryClient.setQueryData(['chats'], (old: Chat[] = []) => 
-          old.map(chat => 
-            chat.id === chatId ? { ...chat, name: title } : chat
-          )
-        );
-      }
-    } catch (error) {
-      console.error('Error in auto-rename process:', error);
-    }
-  };
+  
 } 

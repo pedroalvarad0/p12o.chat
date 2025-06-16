@@ -68,7 +68,7 @@ export function OpenRouterApiKeyDialog({ open, onOpenChange }: OpenRouterApiKeyD
       }, 100);
     } catch (err) {
       setError("Failed to save API key. Please try again.");
-      toast.error("Failed to save API key");
+      toast.error("Failed to save API key: " + (err instanceof Error ? err.message : String(err)));
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +80,7 @@ export function OpenRouterApiKeyDialog({ open, onOpenChange }: OpenRouterApiKeyD
       toast.success("API key removed successfully!");
       onOpenChange(false);
     } catch (err) {
-      toast.error("Failed to remove API key");
+      toast.error("Failed to remove API key: " + (err instanceof Error ? err.message : String(err)));
     }
   }
 
