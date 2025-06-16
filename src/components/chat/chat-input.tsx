@@ -14,7 +14,7 @@ import { useStreamingStore } from "@/lib/stores/streaming-store";
 import { SelectModel } from "../models/select-model";
 import { useOptimisticChatCreation } from "@/hooks/use-optimistic-chat-creation";
 
-const MAX_CHARS = 1000;
+const MAX_CHARS = 4000;
 const MIN_HEIGHT = 100;
 const MAX_HEIGHT = 180;
 

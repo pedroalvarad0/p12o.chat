@@ -54,10 +54,10 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-[var(--radix-popper-anchor-width)]">
-                  <DropdownMenuItem>
+                  {/* <DropdownMenuItem>
                     <User className="mr-2 h-4 w-4" />
                     <span>Account</span>
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                   <DropdownMenuItem onSelect={onSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Sign Out</span>
