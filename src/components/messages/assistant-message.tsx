@@ -11,6 +11,7 @@ interface AssistantMessageProps {
   message: Message;
   isStreaming?: boolean;
   isWaitingCompletion?: boolean;
+  isThinking?: boolean;
   isLastMessage?: boolean;
 }
 
@@ -18,6 +19,7 @@ export function AssistantMessage({
   message, 
   isStreaming = false, 
   isWaitingCompletion = false, 
+  isThinking = false,
   isLastMessage = false 
 }: AssistantMessageProps) {
   const [copied, setCopied] = useState(false);
@@ -35,7 +37,7 @@ export function AssistantMessage({
         ${isStreaming ? 'animate-pulse' : ''}
       `}>
         {/* Waiting completion indicator */}
-        {isWaitingCompletion && isLastMessage && (
+        {isWaitingCompletion && isLastMessage && !isThinking && (
           <div className="flex items-center justify-between mt-2">
             <div className="flex space-x-1">
               <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[bounce_1s_infinite_0ms]" />
@@ -44,6 +46,16 @@ export function AssistantMessage({
             </div>
           </div>
         )}
+
+        {
+          isThinking && isLastMessage && (
+            <div className="flex items-center justify-between mt-2">
+              <div className="flex space-x-1">
+                <span className="text-muted-foreground text-base">Thinking...</span>
+              </div>
+            </div>
+          )
+        }
 
         {/* Message content */}
         <div className="prose prose-sm max-w-none dark:prose-invert min-w-0 w-full">

@@ -5,12 +5,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { updateMessage } from "@/lib/actions/messages";
 import { useStreamingStore } from "@/lib/stores/streaming-store";
 import { useCallback, useRef, useEffect } from "react";
-import { getOpenRouterModelName } from "@/utils/models";
+import { getOpenRouterModelName, isThinkingModel } from "@/utils/models";
 import { useOpenRouterApiKey, getOpenRouterApiKey } from './use-openrouter-api-key';
 
 export function useAIResponse() {
   const { createAndUpdateMessage } = useMessageMutations();
-  const { isStreaming, setStreaming, setWaitingCompletion } = useStreamingStore();
+  const { isStreaming, setStreaming, setWaitingCompletion, setThinking } = useStreamingStore();
   const { apiKey } = useOpenRouterApiKey();
   const queryClient = useQueryClient();
   const streamingRef = useRef(isStreaming);
@@ -27,11 +27,11 @@ export function useAIResponse() {
     });
   }, [queryClient]);
 
-  const shouldUpdateDatabase = useCallback((fullContent: string): boolean => {
-    return fullContent.length % 100 === 0;
-  }, []);
+  // const shouldUpdateDatabase = useCallback((fullContent: string): boolean => {
+  //   return fullContent.length % 100 === 0;
+  // }, []);
 
-  const generateResponse = useCallback(async (chatId: string, context: Message[], model: string = "gpt-4o") => {
+  const generateResponse = useCallback(async (chatId: string, context: Message[], model: string = "GPT-4o") => {
     const currentApiKey = getOpenRouterApiKey();
     
     if (!currentApiKey && !process.env.OPENROUTER_API_KEY) {
@@ -54,7 +54,12 @@ export function useAIResponse() {
 
       setWaitingCompletion(false);
 
+      if (isThinkingModel(model)) {
+        setThinking(true);
+      }
+
       let fullContent = "";
+      let firstChunkReceived = false;
 
       for await (const chunk of completion) {
 
@@ -66,12 +71,17 @@ export function useAIResponse() {
 
         const content = chunk.choices[0]?.delta?.content || "";
         if (content) {
+          if (!firstChunkReceived && isThinkingModel(model)) {
+            setThinking(false);
+            firstChunkReceived = true;
+          }
+          
           fullContent += content;
           updateMessageContent(message, fullContent);
 
-          if (shouldUpdateDatabase(fullContent)) {
-            await updateMessage(message.id, fullContent, "streaming");
-          }
+          // if (shouldUpdateDatabase(fullContent)) {
+          //   await updateMessage(message.id, fullContent, "streaming");
+          // }
         }
       }
 
@@ -84,8 +94,9 @@ export function useAIResponse() {
     } finally {
       setStreaming(false);
       setWaitingCompletion(false);
+      setThinking(false);
     }
-  }, [createAndUpdateMessage, setStreaming, setWaitingCompletion, updateMessageContent, shouldUpdateDatabase]);
+  }, [createAndUpdateMessage, setStreaming, setWaitingCompletion, updateMessageContent, setThinking]);
 
   return { 
     generateResponse, 

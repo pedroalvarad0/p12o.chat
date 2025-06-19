@@ -6,6 +6,7 @@ interface ChatMessageProps {
   message: Message;
   isStreaming?: boolean;
   isWaitingCompletion?: boolean;
+  isThinking?: boolean;
   isLastMessage?: boolean;
 }
 
@@ -13,6 +14,7 @@ export function ChatMessage({
   message, 
   isStreaming = false, 
   isWaitingCompletion = false, 
+  isThinking = false,
   isLastMessage = false 
 }: ChatMessageProps) {
   const isUser = message.role === 'user';
@@ -31,6 +33,7 @@ export function ChatMessage({
       message={message} 
       isStreaming={isStreaming} 
       isWaitingCompletion={isWaitingCompletion} 
+      isThinking={isThinking}
       isLastMessage={isLastMessage} 
     />
   );

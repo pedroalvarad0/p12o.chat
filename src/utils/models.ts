@@ -26,6 +26,17 @@ const modelToOpenRouterMap: Record<string, string> = {
   "Claude 3.5 Sonnet": "anthropic/claude-3.5-sonnet"
 }
 
+const thinkingModels = [
+  "DeepSeek R1",
+  "Claude Sonnet 4", 
+  "Claude Opus 4",
+  "Gemini 2.5 Flash",
+  "Gemini 2.5 Pro"
+]
+
+export function isThinkingModel(modelName: string): boolean {
+  return thinkingModels.includes(modelName)
+}
 
 export function getOpenRouterModelName(modelName: string): string {
   const openRouterName = modelToOpenRouterMap[modelName]
